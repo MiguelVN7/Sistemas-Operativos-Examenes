@@ -383,7 +383,7 @@ void listarPersonasCalendario(const std::vector<Persona>& personas)
 // PREGUNTAS OPCIONALES
 
 
-// Tres ciudades con mayor promedio de patrimonio
+// Tres ciudades con mayor patrimonio promedio
 void top3CiudadesPatrimonio(const std::vector<Persona>& personas)
 {
     if (personas.empty()) {
@@ -391,69 +391,78 @@ void top3CiudadesPatrimonio(const std::vector<Persona>& personas)
         return;
     }
 
-    // Estructura para almacenar datos por ciudad
+    // Estructura para organizar información estadística por ciudad
     struct DatosCiudad {
-        std::string nombre;
-        double patrimonioTotal;
-        int numeroPersonas;
-        double patrimonioPromedio;
+        std::string nombre;           // Nombre de la ciudad
+        double patrimonioTotal;       // Suma de todos los patrimonios en la ciudad
+        int numeroPersonas;           // Contador de personas en la ciudad  
+        double patrimonioPromedio;    // Valor calculado: patrimonioTotal / numeroPersonas
     };
 
-    // Mapa para acumular datos por ciudad
+    // Contenedor asociativo para agrupar automáticamente por ciudad
+    // La clave es el nombre de la ciudad, el valor es la estructura de datos
     std::map<std::string, DatosCiudad> ciudades;
 
-    // Primera pasada: acumular patrimonio y contar personas por ciudad
+    // FASE 1: Recorrido único de los datos para acumular estadísticas por ciudad
     for (const auto& persona : personas) {
         std::string ciudad = persona.getCiudadNacimiento();
         double patrimonio = persona.getPatrimonio();
         
+        // Verificar si es la primera persona de esta ciudad
         if (ciudades.find(ciudad) == ciudades.end()) {
-            // Primera persona de esta ciudad
+            // Inicializar entrada nueva: primera persona de esta ciudad
             ciudades[ciudad] = {ciudad, patrimonio, 1, 0.0};
         } else {
-            // Acumular datos
+            // Acumular datos: agregar patrimonio y incrementar contador
             ciudades[ciudad].patrimonioTotal += patrimonio;
             ciudades[ciudad].numeroPersonas++;
         }
     }
 
-    // Segunda pasada: calcular promedios
+    // FASE 2: Calcular promedios y preparar para ordenamiento
+    // Transferir del mapa a vector para permitir ordenamiento eficiente
     std::vector<DatosCiudad> listaCiudades;
+    listaCiudades.reserve(ciudades.size()); // Reservar memoria para eficiencia
+    
     for (auto& [nombreCiudad, datos] : ciudades) {
+        // Calcular promedio: total acumulado / número de personas
         datos.patrimonioPromedio = datos.patrimonioTotal / datos.numeroPersonas;
         listaCiudades.push_back(datos);
     }
 
-    // Ordenar por patrimonio promedio (descendente)
+    // FASE 3: Ordenamiento descendente por patrimonio promedio
+    // Utiliza algoritmo de ordenamiento optimizado (puede ser QuickSort o IntroSort)
     std::sort(listaCiudades.begin(), listaCiudades.end(),
         [](const DatosCiudad& a, const DatosCiudad& b) {
+            // Función lambda para comparación: ordenar de mayor a menor promedio
             return a.patrimonioPromedio > b.patrimonioPromedio;
         });
 
-    // Mostrar resultados
+    // FASE 4: Presentación de resultados con formato profesional
     std::cout << "\nTOP 3 CIUDADES CON MAYOR PATRIMONIO PROMEDIO\n";
     std::cout << "=" << std::string(65, '=') << "\n\n";
 
+    // Determinar cuántas ciudades mostrar (máximo 3, o menos si hay pocas ciudades)
     int limite = std::min(3, static_cast<int>(listaCiudades.size()));
     
+    // Iterar sobre las ciudades con mayor patrimonio promedio
     for (int i = 0; i < limite; i++) {
         const auto& ciudad = listaCiudades[i];
-    
         
+        // Mostrar información detallada de cada ciudad
         std::cout << " #" << (i + 1) << " - " << ciudad.nombre << "\n";
-        std::cout << "Patrimonio Promedio: $" << std::fixed << std::setprecision(2) 
+        std::cout << "    Patrimonio Promedio: $" << std::fixed << std::setprecision(2) 
                   << ciudad.patrimonioPromedio << " COP\n";
-        std::cout << "Personas en la ciudad: " << ciudad.numeroPersonas << "\n";
-        std::cout << "Patrimonio Total: $" << std::fixed << std::setprecision(2) 
+        std::cout << "    Personas en la ciudad: " << ciudad.numeroPersonas << "\n";
+        std::cout << "    Patrimonio Total: $" << std::fixed << std::setprecision(2) 
                   << ciudad.patrimonioTotal << " COP\n";
         
+        // Separador visual entre ciudades (excepto para la última)
         if (i < limite - 1) {
             std::cout << "   " << std::string(50, '-') << "\n";
         }
         std::cout << "\n";
     }
-
-    std::cout << "\n";
 }
 
 
