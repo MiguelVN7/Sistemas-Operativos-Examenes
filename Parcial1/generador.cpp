@@ -3,7 +3,10 @@
 #include <ctime>     // time()
 #include <random>    // std::mt19937, std::uniform_real_distribution
 #include <vector>
-#include <algorithm> // std::find_if
+#include <algorithm> // std::find_if, std::sort
+#include <map>
+#include <iostream>  // std::cout
+#include <iomanip>   // std::setprecision
 
 // Bases de datos para generación realista
 
@@ -141,4 +144,369 @@ const Persona* buscarPorID(const std::vector<Persona>& personas, const std::stri
     } else {
         return nullptr; // No encontrado
     }
+}
+
+const Persona* buscarLongeva (const std::vector<Persona>& personas)
+{
+    if (personas.empty()) {
+        return nullptr; // Si no hay personas, retornar nullptr
+    }
+    
+    const Persona* personaMayor = &personas[0]; // Empezar con la primera persona
+    int diaMayor, mesMayor, anioMayor;
+    personaMayor->obtenerFechaNacimiento(diaMayor, mesMayor, anioMayor);
+    
+    // Recorrer todas las personas para encontrar la más mayor
+    for (size_t i = 1; i < personas.size(); ++i) {
+        int dia, mes, anio;
+        personas[i].obtenerFechaNacimiento(dia, mes, anio);
+        
+        // Comparar fechas: la persona más mayor tiene fecha de nacimiento más antigua
+        if (anio < anioMayor || 
+            (anio == anioMayor && mes < mesMayor) ||
+            (anio == anioMayor && mes == mesMayor && dia < diaMayor)) {
+            
+            personaMayor = &personas[i];
+            diaMayor = dia;
+            mesMayor = mes;
+            anioMayor = anio;
+        }
+    }
+    
+    return personaMayor;
+}
+
+
+std::map<std::string, const Persona*> buscarLongevaPorCiudad(const std::vector<Persona>& personas) 
+{
+    std::map<std::string, const Persona*> longevasPorCiudad;
+    
+    if (personas.empty()) {
+        return longevasPorCiudad; 
+    }
+    
+    // Recorrer todas las personas
+    for (const auto& persona : personas) {
+        std::string ciudad = persona.getCiudadNacimiento();
+        
+        // Si es la primera persona de esta ciudad, o si es más longeva que la actual
+        if (longevasPorCiudad.find(ciudad) == longevasPorCiudad.end()) {
+            // Primera persona de esta ciudad
+            longevasPorCiudad[ciudad] = &persona;
+        } else {
+            // Comparar con la persona más longeva actual de esta ciudad
+            const Persona* personaActual = longevasPorCiudad[ciudad];
+            
+            // Obtener fechas de ambas personas
+            int diaActual, mesActual, anioActual;
+            int diaNueva, mesNueva, anioNueva;
+            
+            personaActual->obtenerFechaNacimiento(diaActual, mesActual, anioActual);
+            persona.obtenerFechaNacimiento(diaNueva, mesNueva, anioNueva);
+            
+            // Si la nueva persona es más longeva (fecha más antigua)
+            if (anioNueva < anioActual || 
+                (anioNueva == anioActual && mesNueva < mesActual) ||
+                (anioNueva == anioActual && mesNueva == mesActual && diaNueva < diaActual)) {
+                
+                longevasPorCiudad[ciudad] = &persona;
+            }
+        }
+    }
+    
+    return longevasPorCiudad;
+}
+
+const Persona* buscarPatrimonio (const std::vector<Persona>& personas)
+{
+    if (personas.empty()) {
+        return nullptr; // Si no hay personas, retornar nullptr
+    }
+
+    const Persona* masRico = &personas[0];
+    double patrimonioMayor = masRico->getPatrimonio();
+    
+    for (size_t i = 1; i < personas.size(); ++i)
+    {
+        double patrimonioActual = personas[i].getPatrimonio();
+        if (patrimonioActual > patrimonioMayor)
+        {
+            masRico = &personas[i];
+            patrimonioMayor = patrimonioActual;
+        }
+    }
+    return masRico;
+}
+
+std::map<std::string, const Persona*> buscarPatrimonioPorCiudad(const std::vector<Persona>& personas) 
+{
+    std::map<std::string, const Persona*> patrimonioPorCiudad;
+    
+    if (personas.empty()) {
+        return patrimonioPorCiudad;
+    }
+
+    for (const auto& persona : personas) {
+        std::string ciudad = persona.getCiudadNacimiento();
+        
+        // Si es la primera persona de esta ciudad, o si es más rica que la actual
+        if (patrimonioPorCiudad.find(ciudad) == patrimonioPorCiudad.end()) {
+            // Primera persona de esta ciudad
+            patrimonioPorCiudad[ciudad] = &persona;
+        } else {
+            // Comparar con la persona más rica actual de esta ciudad
+            const Persona* personaActual = patrimonioPorCiudad[ciudad];
+            
+            double patrimonioActual = personaActual->getPatrimonio();
+            double patrimonioNuevo = persona.getPatrimonio();
+
+            // Si la nueva persona es más rica
+            if (patrimonioNuevo > patrimonioActual) {
+                patrimonioPorCiudad[ciudad] = &persona;
+            }
+        }
+    }
+
+    return patrimonioPorCiudad;
+}
+
+std::map<char, const Persona*> buscarPatrimonioPorCalendario(const std::vector<Persona>& personas) 
+{
+    std::map<char, const Persona*> patrimonioPorCalendario;
+    
+    if (personas.empty()) {
+        return patrimonioPorCalendario;
+    }
+
+    for (const auto& persona : personas) {
+        char calendario = persona.getCalendarioTributario();
+        
+        // Si es la primera persona de este calendario, o si es más rica que la actual
+        if (patrimonioPorCalendario.find(calendario) == patrimonioPorCalendario.end()) {
+            // Primera persona de este calendario
+            patrimonioPorCalendario[calendario] = &persona;
+        } else {
+            // Comparar con la persona más rica actual de este calendario
+            const Persona* personaActual = patrimonioPorCalendario[calendario];
+            
+            double patrimonioActual = personaActual->getPatrimonio();
+            double patrimonioNuevo = persona.getPatrimonio();
+
+            // Si la nueva persona es más rica
+            if (patrimonioNuevo > patrimonioActual) {
+                patrimonioPorCalendario[calendario] = &persona;
+            }
+        }
+    }
+
+    return patrimonioPorCalendario;
+}
+
+void listarPersonasCalendario(const std::vector<Persona>& personas)
+{
+    if (personas.empty()) {
+        std::cout << "\nNo hay personas para mostrar.\n";
+        return;
+    }
+
+    // Vectores para almacenar personas por calendario
+    std::vector<const Persona*> calendarioA;
+    std::vector<const Persona*> calendarioB;
+    std::vector<const Persona*> calendarioC;
+
+    // Clasificar personas por calendario (una sola pasada)
+    for (const auto& persona : personas) {
+        char calendario = persona.getCalendarioTributario();
+        switch (calendario) {
+            case 'A':
+                if (persona.getDeclaranteRenta())
+                {
+                    calendarioA.push_back(&persona);
+                }
+                break;
+            case 'B':
+                if (persona.getDeclaranteRenta())
+                {
+                    calendarioB.push_back(&persona);
+                }
+                break;
+            case 'C':
+                if (persona.getDeclaranteRenta())
+                {
+                calendarioC.push_back(&persona);
+                }
+                break;
+        }
+    }
+
+
+    // Mostrar personas del calendario A
+    if (!calendarioA.empty()) {
+        std::cout << "CALENDARIO A (00-39):\n";
+        std::cout << "=" << std::string(50, '=') << "\n";
+        for (const auto* persona : calendarioA) {
+            persona->mostrarResumen();
+            std::cout << "\n";
+        }
+        std::cout << "\n";
+    }
+
+    // Mostrar personas del calendario B
+    if (!calendarioB.empty()) {
+        std::cout << "CALENDARIO B (40-79):\n";
+        std::cout << "=" << std::string(50, '=') << "\n";
+        for (const auto* persona : calendarioB) {
+            persona->mostrarResumen();
+            std::cout << "\n";
+        }
+        std::cout << "\n";
+    }
+
+    // Mostrar personas del calendario C
+    if (!calendarioC.empty()) {
+        std::cout << "CALENDARIO C (80-99):\n";
+        std::cout << "=" << std::string(50, '=') << "\n";
+        for (const auto* persona : calendarioC) {
+            persona->mostrarResumen();
+            std::cout << "\n";
+        }
+    }
+
+    // Mostrar resumen
+    std::cout << "\n=== RESUMEN POR CALENDARIO TRIBUTARIO QUE DECLARAN ===\n";
+    std::cout << "Total personas calendario A: " << calendarioA.size() << "\n";
+    std::cout << "Total personas calendario B: " << calendarioB.size() << "\n";
+    std::cout << "Total personas calendario C: " << calendarioC.size() << "\n\n";
+}
+
+
+// PREGUNTAS OPCIONALES
+
+
+// Tres ciudades con mayor promedio de patrimonio
+void top3CiudadesPatrimonio(const std::vector<Persona>& personas)
+{
+    if (personas.empty()) {
+        std::cout << "\nNo hay personas para analizar.\n";
+        return;
+    }
+
+    // Estructura para almacenar datos por ciudad
+    struct DatosCiudad {
+        std::string nombre;
+        double patrimonioTotal;
+        int numeroPersonas;
+        double patrimonioPromedio;
+    };
+
+    // Mapa para acumular datos por ciudad
+    std::map<std::string, DatosCiudad> ciudades;
+
+    // Primera pasada: acumular patrimonio y contar personas por ciudad
+    for (const auto& persona : personas) {
+        std::string ciudad = persona.getCiudadNacimiento();
+        double patrimonio = persona.getPatrimonio();
+        
+        if (ciudades.find(ciudad) == ciudades.end()) {
+            // Primera persona de esta ciudad
+            ciudades[ciudad] = {ciudad, patrimonio, 1, 0.0};
+        } else {
+            // Acumular datos
+            ciudades[ciudad].patrimonioTotal += patrimonio;
+            ciudades[ciudad].numeroPersonas++;
+        }
+    }
+
+    // Segunda pasada: calcular promedios
+    std::vector<DatosCiudad> listaCiudades;
+    for (auto& [nombreCiudad, datos] : ciudades) {
+        datos.patrimonioPromedio = datos.patrimonioTotal / datos.numeroPersonas;
+        listaCiudades.push_back(datos);
+    }
+
+    // Ordenar por patrimonio promedio (descendente)
+    std::sort(listaCiudades.begin(), listaCiudades.end(),
+        [](const DatosCiudad& a, const DatosCiudad& b) {
+            return a.patrimonioPromedio > b.patrimonioPromedio;
+        });
+
+    // Mostrar resultados
+    std::cout << "\nTOP 3 CIUDADES CON MAYOR PATRIMONIO PROMEDIO\n";
+    std::cout << "=" << std::string(65, '=') << "\n\n";
+
+    int limite = std::min(3, static_cast<int>(listaCiudades.size()));
+    
+    for (int i = 0; i < limite; i++) {
+        const auto& ciudad = listaCiudades[i];
+    
+        
+        std::cout << " #" << (i + 1) << " - " << ciudad.nombre << "\n";
+        std::cout << "Patrimonio Promedio: $" << std::fixed << std::setprecision(2) 
+                  << ciudad.patrimonioPromedio << " COP\n";
+        std::cout << "Personas en la ciudad: " << ciudad.numeroPersonas << "\n";
+        std::cout << "Patrimonio Total: $" << std::fixed << std::setprecision(2) 
+                  << ciudad.patrimonioTotal << " COP\n";
+        
+        if (i < limite - 1) {
+            std::cout << "   " << std::string(50, '-') << "\n";
+        }
+        std::cout << "\n";
+    }
+
+    std::cout << "\n";
+}
+
+
+// Persona con más deudas
+const Persona* buscarDeudas (const std::vector<Persona>& personas)
+{
+    if (personas.empty()) 
+    {
+        return nullptr; // Si no hay personas, retornar nullptr
+    }
+
+    const Persona* personaEndeudada = &personas[0];
+    double deuda = personaEndeudada->getDeudas();
+
+    for (size_t i = 1; i < personas.size(); i++)
+    {
+        double deudaActual = personas[i].getDeudas();
+        if (deudaActual > deuda)
+        {
+            personaEndeudada = &personas[i];
+            deuda = deudaActual;
+        }
+    }
+
+    return personaEndeudada;
+}
+
+
+// Persona con el nombre y apellido más largo de todos
+const Persona* buscarNombreMasLargo (const std::vector<Persona>& personas)
+{
+    if (personas.empty()) 
+    {
+        return nullptr; // Si no hay personas, retornar nullptr
+    }
+
+    const Persona* personaNombreLargo = &personas[0];
+    int lonNombre = personaNombreLargo->getNombre().size();
+    int lonApellido = personaNombreLargo->getApellido().size();
+    int tamano = lonNombre + lonApellido;
+
+    for (size_t i = 1; i < personas.size(); i++)
+    {
+        int lonNombreActual = personas[i].getNombre().size();
+        int lonApellidoActual = personas[i].getApellido().size();
+        int tamanoActual = lonNombreActual + lonApellidoActual;
+
+        if (tamanoActual > tamano)
+        {
+            personaNombreLargo = &personas[i];
+            tamano = tamanoActual;
+        }
+    }
+
+    return personaNombreLargo;
 }
