@@ -1,5 +1,6 @@
 #include "persona.h"
 #include <iomanip> // Para std::setprecision
+#include <sstream>
 
 /**
  * Implementación del constructor de Persona.
@@ -19,7 +20,8 @@ Persona::Persona(std::string nom, std::string ape, std::string id,
       ingresosAnuales(ingresos), 
       patrimonio(patri),
       deudas(deud), 
-      declaranteRenta(declara) {}
+      declaranteRenta(declara),
+      calendarioTributario(calcularCalendarioTributario()) {}
 
 /**
  * Implementación de mostrar.
@@ -38,6 +40,8 @@ void Persona::mostrar() const {
     std::cout << "   - Patrimonio: $" << patrimonio << "\n";
     std::cout << "   - Deudas: $" << deudas << "\n";
     std::cout << "   - Declarante de renta: " << (declaranteRenta ? "Sí" : "No") << "\n";
+    std::cout << "   - Calendario Tributario: " << calendarioTributario << "\n"; // Según los 2 últimos digitos de la cédulo: A de 00 a 39; B de 40 a 79; y C de 80 a 99
+
 }
 
 /**
@@ -51,4 +55,47 @@ void Persona::mostrarResumen() const {
     std::cout << "[" << id << "] " << nombre << " " << apellido
               << " | " << ciudadNacimiento 
               << " | $" << std::fixed << std::setprecision(2) << ingresosAnuales;
+}
+
+char Persona::calcularCalendarioTributario() const {
+    char calendario = 'A'; 
+   
+    if (id.length() >= 2) {
+        std::string ultDosDigs = id.substr(id.length() - 2, 2);
+        int numeroCal = std::stoi(ultDosDigs);
+        
+        if (numeroCal < 40) {
+            calendario = 'A';
+        }
+        else if (numeroCal >= 40 && numeroCal < 80) {
+            calendario = 'B';
+        }
+        else if (numeroCal >= 80 && numeroCal <= 99) {
+            calendario = 'C';
+        }
+        
+    }
+    
+    return calendario;
+}
+
+
+
+void Persona::obtenerFechaNacimiento(int& dia, int& mes, int& anio) const
+{
+    // Crear un stringstream con la fecha completa (formato: DD/MM/AAAA)
+    std::stringstream ss(fechaNacimiento);
+    std::string token;
+
+    // Extraer el día (primer token antes del primer '/')
+    std::getline(ss, token, '/');
+    dia = std::stoi(token);
+
+    // Extraer el mes (segundo token entre las dos '/')
+    std::getline(ss, token, '/');
+    mes = std::stoi(token);
+
+    // Extraer el año (tercer token después del segundo '/')
+    std::getline(ss, token, '/');
+    anio = std::stoi(token);
 }

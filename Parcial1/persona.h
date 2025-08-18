@@ -23,6 +23,7 @@ private:
     double patrimonio;            // Patrimonio total (activos)
     double deudas;                // Deudas totales (pasivos)
     bool declaranteRenta;         // Si es declarante de renta
+    char calendarioTributario;    // Según los 2 últimos digitos de la cédulo: A de 00 a 39; B de 40 a 79; y C de 80 a 99
 
 public:
     /**
@@ -46,6 +47,7 @@ public:
     double getPatrimonio() const { return patrimonio; }
     double getDeudas() const { return deudas; }
     bool getDeclaranteRenta() const { return declaranteRenta; }
+    char getCalendarioTributario() const {return calendarioTributario; }
 
     /**
      * Muestra toda la información de la persona de forma detallada.
@@ -64,6 +66,10 @@ public:
      * PARA QUÉ: Visualización eficiente en colecciones grandes.
      */
     void mostrarResumen() const;
+
+    char calcularCalendarioTributario() const;
+
+    void obtenerFechaNacimiento(int& dia, int& mes, int& anio) const;
 };
 
 #endif // PERSONA_H
