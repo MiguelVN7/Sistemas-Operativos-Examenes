@@ -27,6 +27,15 @@ private:
 
 public:
     /**
+     * Constructor por defecto para crear personas vacías.
+     * 
+     * POR QUÉ: Necesidad de crear objetos Persona vacíos para casos de error.
+     * CÓMO: Inicializando todos los miembros con valores por defecto.
+     * PARA QUÉ: Permitir retorno de objetos vacíos cuando no se encuentran resultados.
+     */
+    Persona();
+    
+    /**
      * Constructor para inicializar todos los atributos de la persona.
      * 
      * POR QUÉ: Necesidad de crear instancias de Persona con todos sus datos.
@@ -48,6 +57,15 @@ public:
     double getDeudas() const { return deudas; }
     bool getDeclaranteRenta() const { return declaranteRenta; }
     char getCalendarioTributario() const {return calendarioTributario; }
+    
+    /**
+     * Verifica si la persona está vacía (sin datos).
+     * 
+     * POR QUÉ: Determinar si un objeto Persona tiene datos válidos.
+     * CÓMO: Verificando si el ID está vacío.
+     * PARA QUÉ: Validar resultados de búsquedas que no encontraron personas.
+     */
+    bool estaVacia() const { return id.empty(); }
 
     /**
      * Muestra toda la información de la persona de forma detallada.

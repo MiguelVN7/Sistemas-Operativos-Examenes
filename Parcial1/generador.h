@@ -98,4 +98,46 @@ const Persona* buscarDeudas (const std::vector<Persona>& personas);
 
 const Persona* buscarNombreMasLargo (const std::vector<Persona>& personas);
 
+// ============= FUNCIONES CON PASO POR VALOR =============
+
+/**
+ * Busca una persona por ID usando PASO POR VALOR
+ */
+Persona buscarPorIDValor(std::vector<Persona> personas, std::string id);
+
+/**
+ * Busca la persona más longeva usando PASO POR VALOR
+ */
+Persona buscarLongevaValor(std::vector<Persona> personas);
+
+/**
+ * Busca longevas por ciudad usando PASO POR VALOR
+ */
+std::map<std::string, Persona> buscarLongevaPorCiudadValor(std::vector<Persona> personas);
+
+/**
+ * Busca mayor patrimonio usando PASO POR VALOR
+ */
+Persona buscarPatrimonioValor(std::vector<Persona> personas);
+
+/**
+ * Busca patrimonio por ciudad usando PASO POR VALOR
+ */
+std::map<std::string, Persona> buscarPatrimonioPorCiudadValor(std::vector<Persona> personas);
+
+/**
+ * Busca patrimonio por calendario usando PASO POR VALOR
+ */
+std::map<char, Persona> buscarPatrimonioPorCalendarioValor(std::vector<Persona> personas);
+
+/**
+ * Lista personas por calendario usando PASO POR VALOR
+ */
+void listarPersonasCalendarioValor(std::vector<Persona> personas);
+
+// Preguntas opcionales con PASO POR VALOR
+void top3CiudadesPatrimonioValor(std::vector<Persona> personas);
+Persona buscarDeudasValor(std::vector<Persona> personas);
+Persona buscarNombreMasLargoValor(std::vector<Persona> personas);
+
 #endif // GENERADOR_H

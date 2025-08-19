@@ -3,6 +3,25 @@
 #include <sstream>
 
 /**
+ * Implementación del constructor por defecto de Persona.
+ * 
+ * POR QUÉ: Crear objetos Persona vacíos para casos de error.
+ * CÓMO: Inicializando todos los miembros con valores por defecto.
+ * PARA QUÉ: Permitir retorno de objetos vacíos cuando no se encuentran resultados.
+ */
+Persona::Persona()
+    : nombre(""), 
+      apellido(""), 
+      id(""), 
+      ciudadNacimiento(""),
+      fechaNacimiento(""), 
+      ingresosAnuales(0.0), 
+      patrimonio(0.0),
+      deudas(0.0), 
+      declaranteRenta(false),
+      calendarioTributario('A') {}
+
+/**
  * Implementación del constructor de Persona.
  * 
  * POR QUÉ: Inicializar los miembros de la clase.

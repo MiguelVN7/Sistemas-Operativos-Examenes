@@ -8,6 +8,13 @@
 #include <map>
 
 /**
+ * Función auxiliar para mostrar comparación de rendimiento
+ */
+void mostrarComparacion(const std::string& operacion, 
+                       double tiempoValor, long memoriaValor,
+                       double tiempoApuntador, long memoriaApuntador);
+
+/**
  * Muestra el menú principal de la aplicación.
  * 
  * POR QUÉ: Guiar al usuario a través de las funcionalidades disponibles.
@@ -33,6 +40,80 @@ void mostrarMenu() {
     std::cout << "\n14. Consultar persona con más deudas del país";
     std::cout << "\n15. Consultar persona con el nombre más largo";
     std::cout << "\n\nSeleccione una opción: ";
+}
+
+/**
+ * Función auxiliar para mostrar comparación de rendimiento
+ */
+void mostrarComparacion(const std::string& operacion, 
+                       double tiempoValor, long memoriaValor,
+                       double tiempoApuntador, long memoriaApuntador) {
+    std::cout << "\n=== COMPARACION DE RENDIMIENTO: " << operacion << " ===\n";
+    std::cout << "Metodo          | Tiempo (ms)    | Memoria (KB)   | Eficiencia\n";
+    std::cout << "----------------|----------------|----------------|------------\n";
+    
+    // Mostrar resultados de PASO POR VALOR
+    std::cout << "Por Valor       | " << std::right << std::setw(12) << std::fixed << std::setprecision(2) 
+              << tiempoValor << " ms | " << std::setw(12) << memoriaValor << " KB | ";
+    
+    if (tiempoValor > tiempoApuntador * 1.5) {
+        std::cout << "LENTO";
+    } else {
+        std::cout << "Normal";
+    }
+    std::cout << "\n";
+    
+    // Mostrar resultados de APUNTADORES
+    std::cout << "Por Apuntador   | " << std::right << std::setw(12) << std::fixed << std::setprecision(2) 
+              << tiempoApuntador << " ms | " << std::setw(12) << memoriaApuntador << " KB | ";
+    
+    if (tiempoApuntador < tiempoValor * 0.7) {
+        std::cout << "RAPIDO";
+    } else {
+        std::cout << "Normal";
+    }
+    std::cout << "\n";
+    
+    std::cout << "----------------|----------------|----------------|------------\n";
+    
+    // Calcular y mostrar diferencias
+    double diferenciaT = 0.0;
+    double diferenciaM = 0.0;
+    
+    // Evitar división por cero en tiempo
+    if (tiempoApuntador > 0) {
+        diferenciaT = ((tiempoValor - tiempoApuntador) / tiempoApuntador) * 100;
+    }
+    
+    // Evitar división por cero en memoria
+    if (memoriaApuntador > 0) {
+        diferenciaM = ((memoriaValor - memoriaApuntador) / static_cast<double>(memoriaApuntador)) * 100;
+    }
+    
+    std::cout << "ANALISIS:\n";
+    std::cout << "- Diferencia Tiempo: " << std::fixed << std::setprecision(1) 
+              << std::abs(diferenciaT) << "% ";
+    
+    if (diferenciaT > 0) {
+        std::cout << "(Apuntadores " << std::abs(diferenciaT) << "% mas rapido)\n";
+    } else if (diferenciaT < 0) {
+        std::cout << "(Valor " << std::abs(diferenciaT) << "% mas rapido)\n";
+    } else {
+        std::cout << "(Mismo rendimiento)\n";
+    }
+    
+    std::cout << "- Diferencia Memoria: " << std::fixed << std::setprecision(1) 
+              << std::abs(diferenciaM) << "% ";
+    
+    if (diferenciaM > 0) {
+        std::cout << "(Apuntadores usa " << std::abs(diferenciaM) << "% menos memoria)\n";
+    } else if (diferenciaM < 0) {
+        std::cout << "(Valor usa " << std::abs(diferenciaM) << "% menos memoria)\n";
+    } else {
+        std::cout << "(Mismo uso de memoria)\n";
+    }
+    
+    std::cout << "========================================\n";
 }
 
 /**
@@ -154,11 +235,30 @@ int main() {
                 std::cout << "\nIngrese el ID a buscar: ";
                 std::cin >> idBusqueda;
                 
-                if(const Persona* encontrada = buscarPorID(*personas, idBusqueda)) {
-                    encontrada->mostrar();
+                // Ejecutar con apuntadores
+                monitor.iniciar_tiempo();
+                long memoria_inicio_ap = monitor.obtener_memoria();
+                const Persona* encontrada_ap = buscarPorID(*personas, idBusqueda);
+                double tiempo_ap = monitor.detener_tiempo();
+                long memoria_ap = monitor.obtener_memoria() - memoria_inicio_ap;
+                
+                // Ejecutar con paso por valor
+                monitor.iniciar_tiempo();
+                long memoria_inicio_val = monitor.obtener_memoria();
+                Persona encontrada_val = buscarPorIDValor(*personas, idBusqueda);
+                double tiempo_val = monitor.detener_tiempo();
+                long memoria_val = monitor.obtener_memoria() - memoria_inicio_val;
+                
+                // Mostrar resultados
+                if(encontrada_ap) {
+                    std::cout << "\n=== RESULTADO BÚSQUEDA POR ID ===" << std::endl;
+                    encontrada_ap->mostrar();
                 } else {
                     std::cout << "No se encontró persona con ID " << idBusqueda << "\n";
                 }
+                
+                // Mostrar comparación de rendimiento
+                mostrarComparacion("Buscar por ID", tiempo_val, memoria_val, tiempo_ap, memoria_ap);
                 
                 double tiempo_busqueda = monitor.detener_tiempo();
                 long memoria_busqueda = monitor.obtener_memoria() - memoria_inicio;
@@ -182,9 +282,26 @@ int main() {
                     break;
                 }
 
-                const Persona* mayor = buscarLongeva(*personas);
-                std::cout << "\nLa persona más longeva de todo el país es: " << "\n";
-                mayor->mostrar();
+                // Ejecutar con apuntadores
+                monitor.iniciar_tiempo();
+                long memoria_inicio_ap = monitor.obtener_memoria();
+                const Persona* mayor_ap = buscarLongeva(*personas);
+                double tiempo_ap = monitor.detener_tiempo();
+                long memoria_ap = monitor.obtener_memoria() - memoria_inicio_ap;
+                
+                // Ejecutar con paso por valor
+                monitor.iniciar_tiempo();
+                long memoria_inicio_val = monitor.obtener_memoria();
+                Persona mayor_val = buscarLongevaValor(*personas);
+                double tiempo_val = monitor.detener_tiempo();
+                long memoria_val = monitor.obtener_memoria() - memoria_inicio_val;
+                
+                // Mostrar resultados
+                std::cout << "\n=== PERSONA MÁS LONGEVA DEL PAÍS ===" << std::endl;
+                mayor_ap->mostrar();
+
+                // Mostrar comparación de rendimiento
+                mostrarComparacion("Persona más longeva", tiempo_val, memoria_val, tiempo_ap, memoria_ap);
 
                 double tiempo_longeva1 = monitor.detener_tiempo();
                 long memoria_longeva1 = monitor.obtener_memoria() - memoria_inicio;
@@ -200,12 +317,24 @@ int main() {
                     break;
                 }
 
-                auto longevasPorCiudad = buscarLongevaPorCiudad(*personas);
+                // Ejecutar con apuntadores
+                monitor.iniciar_tiempo();
+                long memoria_inicio_ap = monitor.obtener_memoria();
+                auto longevasPorCiudad_ap = buscarLongevaPorCiudad(*personas);
+                double tiempo_ap = monitor.detener_tiempo();
+                long memoria_ap = monitor.obtener_memoria() - memoria_inicio_ap;
+                
+                // Ejecutar con paso por valor
+                monitor.iniciar_tiempo();
+                long memoria_inicio_val = monitor.obtener_memoria();
+                auto longevasPorCiudad_val = buscarLongevaPorCiudadValor(*personas);
+                double tiempo_val = monitor.detener_tiempo();
+                long memoria_val = monitor.obtener_memoria() - memoria_inicio_val;
 
                 std::cout << "\n=== PERSONA MÁS LONGEVA POR CIUDAD ===\n";
-                std::cout << "Total de ciudades: " << longevasPorCiudad.size() << "\n\n";
+                std::cout << "Total de ciudades: " << longevasPorCiudad_ap.size() << "\n\n";
 
-                for (const auto& [ciudad, persona] : longevasPorCiudad)
+                for (const auto& [ciudad, persona] : longevasPorCiudad_ap)
                 {
                     int dia, mes, anio;
                     persona->obtenerFechaNacimiento(dia, mes, anio);
@@ -213,6 +342,9 @@ int main() {
                     persona->mostrar();
                     std::cout << "\n";
                 }
+
+                // Mostrar comparación de rendimiento
+                mostrarComparacion("Longeva por ciudad", tiempo_val, memoria_val, tiempo_ap, memoria_ap);
 
                 double tiempo_longeva = monitor.detener_tiempo();
                 long memoria_longeva = monitor.obtener_memoria() - memoria_inicio;
@@ -228,9 +360,25 @@ int main() {
                     break;
                 }
 
-                const Persona* masRico = buscarPatrimonio(*personas);
+                // Ejecutar con apuntadores
+                monitor.iniciar_tiempo();
+                long memoria_inicio_ap = monitor.obtener_memoria();
+                const Persona* masRico_ap = buscarPatrimonio(*personas);
+                double tiempo_ap = monitor.detener_tiempo();
+                long memoria_ap = monitor.obtener_memoria() - memoria_inicio_ap;
+                
+                // Ejecutar con paso por valor
+                monitor.iniciar_tiempo();
+                long memoria_inicio_val = monitor.obtener_memoria();
+                Persona masRico_val = buscarPatrimonioValor(*personas);
+                double tiempo_val = monitor.detener_tiempo();
+                long memoria_val = monitor.obtener_memoria() - memoria_inicio_val;
+                
                 std::cout << "\nLa persona con mayor patrimonio del país es:\n";
-                masRico->mostrar();
+                masRico_ap->mostrar();
+
+                // Mostrar comparación de rendimiento
+                mostrarComparacion("Mayor patrimonio", tiempo_val, memoria_val, tiempo_ap, memoria_ap);
 
                 double tiempo_patrimonio = monitor.detener_tiempo();
                 long memoria_patrimonio = monitor.obtener_memoria() - memoria_inicio;
@@ -246,18 +394,33 @@ int main() {
                     break;
                 }
 
-                auto patrimonioPorCiudad = buscarPatrimonioPorCiudad(*personas);
+                // Ejecutar con apuntadores
+                monitor.iniciar_tiempo();
+                long memoria_inicio_ap = monitor.obtener_memoria();
+                auto patrimonioPorCiudad_ap = buscarPatrimonioPorCiudad(*personas);
+                double tiempo_ap = monitor.detener_tiempo();
+                long memoria_ap = monitor.obtener_memoria() - memoria_inicio_ap;
+                
+                // Ejecutar con paso por valor
+                monitor.iniciar_tiempo();
+                long memoria_inicio_val = monitor.obtener_memoria();
+                auto patrimonioPorCiudad_val = buscarPatrimonioPorCiudadValor(*personas);
+                double tiempo_val = monitor.detener_tiempo();
+                long memoria_val = monitor.obtener_memoria() - memoria_inicio_val;
 
                 std::cout << "\n=== PERSONA MÁS RICA POR CIUDAD ===\n";
-                std::cout << "Total de ciudades: " << patrimonioPorCiudad.size() << "\n\n";
+                std::cout << "Total de ciudades: " << patrimonioPorCiudad_ap.size() << "\n\n";
 
-                for (const auto& [ciudad, persona] : patrimonioPorCiudad)
+                for (const auto& [ciudad, persona] : patrimonioPorCiudad_ap)
                 {
                     persona->getPatrimonio();
                     std::cout << "\nCiudad: " << ciudad << ": \n";
                     persona->mostrar();
                     std::cout << "\n";
                 }
+
+                // Mostrar comparación de rendimiento
+                mostrarComparacion("Mayor patrimonio por ciudad", tiempo_val, memoria_val, tiempo_ap, memoria_ap);
 
                 double tiempo_patrimonio = monitor.detener_tiempo();
                 long memoria_patrimonio = monitor.obtener_memoria() - memoria_inicio;
@@ -273,17 +436,33 @@ int main() {
                     break;
                 }
 
-                auto patrimonioPorCalendario = buscarPatrimonioPorCalendario(*personas);
+                // Ejecutar con apuntadores
+                monitor.iniciar_tiempo();
+                long memoria_inicio_ap = monitor.obtener_memoria();
+                auto patrimonioPorCalendario_ap = buscarPatrimonioPorCalendario(*personas);
+                double tiempo_ap = monitor.detener_tiempo();
+                long memoria_ap = monitor.obtener_memoria() - memoria_inicio_ap;
+                
+                // Ejecutar con paso por valor
+                monitor.iniciar_tiempo();
+                long memoria_inicio_val = monitor.obtener_memoria();
+                auto patrimonioPorCalendario_val = buscarPatrimonioPorCalendarioValor(*personas);
+                double tiempo_val = monitor.detener_tiempo();
+                long memoria_val = monitor.obtener_memoria() - memoria_inicio_val;
+                
                 std::cout << "\n=== PERSONA MÁS RICA POR CALENDARIO ===\n";
-                std::cout << "Total de calendarios: " << patrimonioPorCalendario.size() << "\n\n";
+                std::cout << "Total de calendarios: " << patrimonioPorCalendario_ap.size() << "\n\n";
 
-                for (const auto& [calendario, persona] : patrimonioPorCalendario)
+                for (const auto& [calendario, persona] : patrimonioPorCalendario_ap)
                 {
                     persona->getPatrimonio();
-                    std::cout << "\nCiudad: " << calendario << ": \n";
+                    std::cout << "\nCalendario: " << calendario << ": \n";
                     persona->mostrar();
                     std::cout << "\n";
                 }
+
+                // Mostrar comparación de rendimiento
+                mostrarComparacion("Mayor patrimonio por calendario", tiempo_val, memoria_val, tiempo_ap, memoria_ap);
 
                 double tiempo_patrimonio = monitor.detener_tiempo();
                 long memoria_patrimonio = monitor.obtener_memoria() - memoria_inicio;
@@ -300,7 +479,22 @@ int main() {
                     break;
                 }
 
+                // Ejecutar con apuntadores
+                monitor.iniciar_tiempo();
+                long memoria_inicio_ap = monitor.obtener_memoria();
                 listarPersonasCalendario(*personas);
+                double tiempo_ap = monitor.detener_tiempo();
+                long memoria_ap = monitor.obtener_memoria() - memoria_inicio_ap;
+                
+                // Ejecutar con paso por valor
+                monitor.iniciar_tiempo();
+                long memoria_inicio_val = monitor.obtener_memoria();
+                listarPersonasCalendarioValor(*personas);
+                double tiempo_val = monitor.detener_tiempo();
+                long memoria_val = monitor.obtener_memoria() - memoria_inicio_val;
+
+                // Mostrar comparación de rendimiento
+                mostrarComparacion("Lista personas por calendario", tiempo_val, memoria_val, tiempo_ap, memoria_ap);
 
                 double tiempo_patrimonio = monitor.detener_tiempo();
                 long memoria_patrimonio = monitor.obtener_memoria() - memoria_inicio;
@@ -316,8 +510,22 @@ int main() {
                     break;
                 }
 
+                // Ejecutar con apuntadores
                 monitor.iniciar_tiempo();
+                long memoria_inicio_ap = monitor.obtener_memoria();
                 top3CiudadesPatrimonio(*personas);
+                double tiempo_ap = monitor.detener_tiempo();
+                long memoria_ap = monitor.obtener_memoria() - memoria_inicio_ap;
+                
+                // Ejecutar con paso por valor
+                monitor.iniciar_tiempo();
+                long memoria_inicio_val = monitor.obtener_memoria();
+                top3CiudadesPatrimonioValor(*personas);
+                double tiempo_val = monitor.detener_tiempo();
+                long memoria_val = monitor.obtener_memoria() - memoria_inicio_val;
+
+                // Mostrar comparación de rendimiento
+                mostrarComparacion("Top 3 ciudades patrimonio", tiempo_val, memoria_val, tiempo_ap, memoria_ap);
 
                 double tiempo_patrimonio = monitor.detener_tiempo();
                 long memoria_patrimonio = monitor.obtener_memoria() - memoria_inicio;
@@ -333,9 +541,25 @@ int main() {
                     break;
                 }
 
-                const Persona* masEndeudado = buscarDeudas(*personas);
+                // Ejecutar con apuntadores
+                monitor.iniciar_tiempo();
+                long memoria_inicio_ap = monitor.obtener_memoria();
+                const Persona* masEndeudado_ap = buscarDeudas(*personas);
+                double tiempo_ap = monitor.detener_tiempo();
+                long memoria_ap = monitor.obtener_memoria() - memoria_inicio_ap;
+                
+                // Ejecutar con paso por valor
+                monitor.iniciar_tiempo();
+                long memoria_inicio_val = monitor.obtener_memoria();
+                Persona masEndeudado_val = buscarDeudasValor(*personas);
+                double tiempo_val = monitor.detener_tiempo();
+                long memoria_val = monitor.obtener_memoria() - memoria_inicio_val;
+                
                 std::cout << "\nLa persona con más deudas del país es:\n";
-                masEndeudado->mostrar();
+                masEndeudado_ap->mostrar();
+
+                // Mostrar comparación de rendimiento
+                mostrarComparacion("Mayor deuda", tiempo_val, memoria_val, tiempo_ap, memoria_ap);
 
                 double tiempo_patrimonio = monitor.detener_tiempo();
                 long memoria_patrimonio = monitor.obtener_memoria() - memoria_inicio;
@@ -352,13 +576,29 @@ int main() {
                     break;
                 }
 
-                const Persona* nombreMasLargo = buscarNombreMasLargo(*personas);
+                // Ejecutar con apuntadores
+                monitor.iniciar_tiempo();
+                long memoria_inicio_ap = monitor.obtener_memoria();
+                const Persona* nombreMasLargo_ap = buscarNombreMasLargo(*personas);
+                double tiempo_ap = monitor.detener_tiempo();
+                long memoria_ap = monitor.obtener_memoria() - memoria_inicio_ap;
+                
+                // Ejecutar con paso por valor
+                monitor.iniciar_tiempo();
+                long memoria_inicio_val = monitor.obtener_memoria();
+                Persona nombreMasLargo_val = buscarNombreMasLargoValor(*personas);
+                double tiempo_val = monitor.detener_tiempo();
+                long memoria_val = monitor.obtener_memoria() - memoria_inicio_val;
+                
                 std::cout << "\nLa persona con el nombre más largo es:\n";
-                nombreMasLargo->mostrar();
-                int lonNombre = nombreMasLargo->getNombre().size();
-                int lonApellido = nombreMasLargo->getApellido().size();
+                nombreMasLargo_ap->mostrar();
+                int lonNombre = nombreMasLargo_ap->getNombre().size();
+                int lonApellido = nombreMasLargo_ap->getApellido().size();
                 int tamano = lonNombre + lonApellido - 3;
                 std::cout << "\nEl nombre tiene: " << tamano << " caracteres.\n";
+
+                // Mostrar comparación de rendimiento
+                mostrarComparacion("Nombre más largo", tiempo_val, memoria_val, tiempo_ap, memoria_ap);
 
                 double tiempo_patrimonio = monitor.detener_tiempo();
                 long memoria_patrimonio = monitor.obtener_memoria() - memoria_inicio;
