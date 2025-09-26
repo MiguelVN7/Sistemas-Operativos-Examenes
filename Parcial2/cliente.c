@@ -1,22 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-#include <unistd.h>
 #include <pthread.h>
-
-#define MAX_TEXTO 256
-#define MAX_NOMBRE 50
-
-// Estructura para los mensajes
-struct mensaje {
-    long mtype;         // Tipo de mensaje
-    char remitente[MAX_NOMBRE];
-    char texto[MAX_TEXTO];
-    char sala[MAX_NOMBRE];
-};
+#include "estructuras.h"
 
 int cola_global;
 int cola_sala = -1;
