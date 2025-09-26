@@ -64,11 +64,8 @@ int main(int argc, char *argv[]) {
             char sala[MAX_NOMBRE];
             sscanf(comando, "join %s", sala);
 
-            // Enviar solicitud de JOIN al servidor
-            msg.mtype = 1; // JOIN
-            strcpy(msg.remitente, nombre_usuario);
-            strcpy(msg.sala, sala);
-            strcpy(msg.texto, "");
+            // Enviar solicitud de JOIN al servidor usando función auxiliar
+            crear_mensaje_join(&msg, nombre_usuario, sala);
 
             if (msgsnd(cola_global, &msg, sizeof(struct mensaje) - sizeof(long), 0) == -1) {
                 perror("Error al enviar solicitud de JOIN");
@@ -76,7 +73,7 @@ int main(int argc, char *argv[]) {
             }
 
             // Esperar confirmación del servidor
-            if (msgrcv(cola_global, &msg, sizeof(struct mensaje) - sizeof(long), 2, 0) == -1) {
+            if (msgrcv(cola_global, &msg, sizeof(struct mensaje) - sizeof(long), MSG_RESPUESTA, 0) == -1) {
                 perror("Error al recibir confirmación");
                 continue;
             }
@@ -92,6 +89,62 @@ int main(int argc, char *argv[]) {
             }
 
             strcpy(sala_actual, sala);
+        } else if (strncmp(comando, "list", 4) == 0) {
+            // Comando para listar salas disponibles
+            crear_mensaje_list_rooms(&msg, nombre_usuario);
+
+            if (msgsnd(cola_global, &msg, sizeof(struct mensaje) - sizeof(long), 0) == -1) {
+                perror("Error al solicitar lista de salas");
+                continue;
+            }
+
+            // Esperar respuesta del servidor
+            if (msgrcv(cola_global, &msg, sizeof(struct mensaje) - sizeof(long), MSG_RESPUESTA, 0) == -1) {
+                perror("Error al recibir lista de salas");
+                continue;
+            }
+
+            printf("%s\n", msg.texto);
+        } else if (strncmp(comando, "leave", 5) == 0) {
+            // Comando para abandonar la sala actual
+            if (strlen(sala_actual) == 0) {
+                printf("No estás en ninguna sala.\n");
+                continue;
+            }
+
+            crear_mensaje_leave_room(&msg, nombre_usuario, sala_actual);
+
+            if (msgsnd(cola_global, &msg, sizeof(struct mensaje) - sizeof(long), 0) == -1) {
+                perror("Error al enviar solicitud de abandono");
+                continue;
+            }
+
+            // Esperar confirmación del servidor
+            if (msgrcv(cola_global, &msg, sizeof(struct mensaje) - sizeof(long), MSG_RESPUESTA, 0) == -1) {
+                perror("Error al recibir confirmación de abandono");
+                continue;
+            }
+
+            printf("%s\n", msg.texto);
+            strcpy(sala_actual, ""); // Limpiar sala actual
+            cola_sala = -1; // Desconectar de la cola de la sala
+        } else if (strncmp(comando, "quit", 4) == 0 || strncmp(comando, "exit", 4) == 0) {
+            // Comando para desconectarse completamente
+            if (strlen(sala_actual) > 0) {
+                crear_mensaje_disconnect(&msg, nombre_usuario, sala_actual);
+                msgsnd(cola_global, &msg, sizeof(struct mensaje) - sizeof(long), 0);
+            }
+            printf("¡Hasta luego, %s!\n", nombre_usuario);
+            break;
+        } else if (strncmp(comando, "help", 4) == 0) {
+            // Mostrar ayuda
+            printf("Comandos disponibles:\n");
+            printf("  join <sala>  - Unirse a una sala\n");
+            printf("  list         - Ver salas disponibles\n");
+            printf("  leave        - Abandonar sala actual\n");
+            printf("  quit/exit    - Salir del chat\n");
+            printf("  help         - Mostrar esta ayuda\n");
+            printf("  <mensaje>    - Enviar mensaje a la sala actual\n");
         } else if (strlen(comando) > 0) {
             // Enviar un mensaje a la sala actual
             if (strlen(sala_actual) == 0) {
@@ -99,10 +152,8 @@ int main(int argc, char *argv[]) {
                 continue;
             }
 
-            msg.mtype = 3; // MSG
-            strcpy(msg.remitente, nombre_usuario);
-            strcpy(msg.sala, sala_actual);
-            strcpy(msg.texto, comando);
+            // Enviar mensaje de chat usando función auxiliar
+            crear_mensaje_chat(&msg, nombre_usuario, sala_actual, comando);
 
             if (msgsnd(cola_sala, &msg, sizeof(struct mensaje) - sizeof(long), 0) == -1) {
                 perror("Error al enviar mensaje");
