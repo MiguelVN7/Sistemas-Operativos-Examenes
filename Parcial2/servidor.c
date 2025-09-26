@@ -1,33 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-#include <unistd.h>
+#include "estructuras.h"
 
-#define MAX_SALAS 10
 #define MAX_USUARIOS_POR_SALA 20
-#define MAX_TEXTO 256
-#define MAX_NOMBRE 50
 
-// Estructura para los mensajes
-struct mensaje {
-    long mtype;         // Tipo de mensaje
-    char remitente[MAX_NOMBRE];
-    char texto[MAX_TEXTO];
-    char sala[MAX_NOMBRE];
-};
-
-// Estructura para una sala de chat
-struct sala {
-    char nombre[MAX_NOMBRE];
-    int cola_id;        // ID de la cola de mensajes de la sala
-    int num_usuarios;
-    char usuarios[MAX_USUARIOS_POR_SALA][MAX_NOMBRE];
-};
-
-struct sala salas[MAX_SALAS];
+struct sala_chat salas[MAX_SALAS];
 int num_salas = 0;
 
 // Función para crear una nueva sala
@@ -47,7 +22,7 @@ int crear_sala(const char *nombre) {
     // Inicializar la sala
     strcpy(salas[num_salas].nombre, nombre);
     salas[num_salas].cola_id = cola_id;
-    salas[num_salas].num_usuarios = 0;
+    salas[num_salas].num_clientes = 0;
 
     num_salas++;
     return num_salas - 1; // Retornar el índice de la sala creada
@@ -69,21 +44,23 @@ int agregar_usuario_a_sala(int indice_sala, const char *nombre_usuario) {
         return -1;
     }
 
-    struct sala *s = &salas[indice_sala];
-    if (s->num_usuarios >= MAX_USUARIOS_POR_SALA) {
+    struct sala_chat *s = &salas[indice_sala];
+    if (s->num_clientes >= MAX_CLIENTES) {
         return -1; // Sala llena
     }
 
     // Verificar si el usuario ya está en la sala
-    for (int i = 0; i < s->num_usuarios; i++) {
-        if (strcmp(s->usuarios[i], nombre_usuario) == 0) {
+    for (int i = 0; i < s->num_clientes; i++) {
+        if (strcmp(s->clientes[i].nombre, nombre_usuario) == 0) {
             return -1; // Usuario ya está en la sala
         }
     }
 
     // Agregar el usuario
-    strcpy(s->usuarios[s->num_usuarios], nombre_usuario);
-    s->num_usuarios++;
+    strcpy(s->clientes[s->num_clientes].nombre, nombre_usuario);
+    s->clientes[s->num_clientes].pid = getpid(); // Se puede mejorar para usar el PID real del cliente
+    strcpy(s->clientes[s->num_clientes].sala_actual, s->nombre);
+    s->num_clientes++;
     return 0;
 }
 
@@ -93,8 +70,8 @@ void enviar_a_todos_en_sala(int indice_sala, struct mensaje *msg) {
         return;
     }
 
-    struct sala *s = &salas[indice_sala];
-    for (int i = 0; i < s->num_usuarios; i++) {
+    struct sala_chat *s = &salas[indice_sala];
+    for (int i = 0; i < s->num_clientes; i++) {
         // Enviar el mensaje a la cola de la sala
         if (msgsnd(s->cola_id, msg, sizeof(struct mensaje) - sizeof(long), 0) == -1) {
             perror("Error al enviar mensaje a la sala");
