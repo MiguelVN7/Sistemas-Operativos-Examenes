@@ -44,9 +44,78 @@ struct servidor {
     int cola_global;                    // ID de la cola global para comunicación inicial
 };
 
-// Tipos de mensaje (más simple)
-#define MSG_JOIN 1      // Unirse a una sala
-#define MSG_RESPUESTA 2 // Respuesta del servidor
-#define MSG_CHAT 3      // Mensaje de chat
+// Tipos de mensaje basados en el flujo del sistema de chat
+typedef enum {
+    MSG_JOIN = 1,           // Cliente solicita unirse a una sala
+    MSG_RESPUESTA = 2,      // Respuesta del servidor a solicitudes
+    MSG_CHAT = 3,           // Mensaje de chat entre usuarios en la sala
+    MSG_DISCONNECT = 4,     // Cliente se desconecta del sistema
+    MSG_LIST_ROOMS = 5,     // Solicitar lista de salas disponibles
+    MSG_LEAVE_ROOM = 6      // Abandonar la sala actual
+} tipo_mensaje_t;
+
+// Definiciones para compatibilidad con código existente
+#define TIPO_JOIN 1
+#define TIPO_RESPUESTA 2
+#define TIPO_CHAT 3
+#define TIPO_DISCONNECT 4
+#define TIPO_LIST_ROOMS 5
+#define TIPO_LEAVE_ROOM 6
+
+// Funciones auxiliares para crear mensajes de diferentes tipos
+static inline void crear_mensaje_join(struct mensaje *msg, const char *remitente, const char *sala) {
+    msg->mtype = MSG_JOIN;
+    strcpy(msg->remitente, remitente);
+    strcpy(msg->sala, sala);
+    strcpy(msg->texto, "");
+}
+
+static inline void crear_mensaje_chat(struct mensaje *msg, const char *remitente, const char *sala, const char *texto) {
+    msg->mtype = MSG_CHAT;
+    strcpy(msg->remitente, remitente);
+    strcpy(msg->sala, sala);
+    strcpy(msg->texto, texto);
+}
+
+static inline void crear_mensaje_respuesta(struct mensaje *msg, const char *texto) {
+    msg->mtype = MSG_RESPUESTA;
+    strcpy(msg->remitente, "SERVIDOR");
+    strcpy(msg->sala, "");
+    strcpy(msg->texto, texto);
+}
+
+static inline void crear_mensaje_disconnect(struct mensaje *msg, const char *remitente, const char *sala) {
+    msg->mtype = MSG_DISCONNECT;
+    strcpy(msg->remitente, remitente);
+    strcpy(msg->sala, sala);
+    strcpy(msg->texto, "");
+}
+
+static inline void crear_mensaje_list_rooms(struct mensaje *msg, const char *remitente) {
+    msg->mtype = MSG_LIST_ROOMS;
+    strcpy(msg->remitente, remitente);
+    strcpy(msg->sala, "");
+    strcpy(msg->texto, "");
+}
+
+static inline void crear_mensaje_leave_room(struct mensaje *msg, const char *remitente, const char *sala) {
+    msg->mtype = MSG_LEAVE_ROOM;
+    strcpy(msg->remitente, remitente);
+    strcpy(msg->sala, sala);
+    strcpy(msg->texto, "");
+}
+
+// Función para obtener el nombre del tipo de mensaje (útil para debugging)
+static inline const char* obtener_nombre_tipo_mensaje(long tipo) {
+    switch(tipo) {
+        case MSG_JOIN: return "JOIN";
+        case MSG_RESPUESTA: return "RESPUESTA";
+        case MSG_CHAT: return "CHAT";
+        case MSG_DISCONNECT: return "DISCONNECT";
+        case MSG_LIST_ROOMS: return "LIST_ROOMS";
+        case MSG_LEAVE_ROOM: return "LEAVE_ROOM";
+        default: return "DESCONOCIDO";
+    }
+}
 
 #endif
