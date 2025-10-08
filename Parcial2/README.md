@@ -1,9 +1,5 @@
 # Sistema de Chat IPC con Colas de Mensajes
 
-**Autor:** Sistemas Operativos - Parcial 2  
-**Fecha:** Septiembre 2025  
-**Lenguaje:** C (estándar C99)  
-**Plataforma:** Linux  
 
 ## Descripción del Proyecto
 
