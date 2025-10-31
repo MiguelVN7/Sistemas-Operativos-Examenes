@@ -1,51 +1,75 @@
 #include "aes_simple.h"
-#include <stdlib.h>
 #include <string.h>
 
 /**
- * @file aes_simple.c
- * @brief Implementación simplificada del algoritmo AES
- *
- * NOTA: Esta es una implementación educativa simplificada.
- * Para producción, use librerías criptográficas establecidas como OpenSSL.
- *
- * AES-128 usa bloques de 128 bits (16 bytes) y clave de 128 bits.
- * Este es un placeholder que implementa XOR básico.
+ * AES (Advanced Encryption Standard) - Implementación muy simplificada
+ * Esta es una versión básica para el avance
+ * TODO: Implementar AES completo con S-boxes, ShiftRows, MixColumns
  */
 
-unsigned char* aes_encrypt(const unsigned char* input, size_t input_size,
-                          const unsigned char* key, size_t* output_size) {
-    if (!input || !key || input_size == 0 || !output_size) {
-        return NULL;
+static void simple_aes_round(unsigned char* block, const unsigned char* key, size_t key_len) {
+    // Versión simplificada - solo XOR y permutaciones básicas
+    for (size_t i = 0; i < 16; i++) {
+        block[i] ^= key[i % key_len];
+        
+        // Sustitución simple (no es S-box real de AES)
+        block[i] = ((block[i] << 4) | (block[i] >> 4));
     }
-
-    // TODO: Implementar AES completo con:
-    // - SubBytes (S-box)
-    // - ShiftRows
-    // - MixColumns
-    // - AddRoundKey
-    // - Key expansion
-
-    // Placeholder: Simple XOR con clave
-    unsigned char* output = (unsigned char*)malloc(input_size);
-    if (!output) {
-        return NULL;
-    }
-
-    for (size_t i = 0; i < input_size; i++) {
-        output[i] = input[i] ^ key[i % 16];
-    }
-
-    *output_size = input_size;
-    return output;
+    
+    // ShiftRows simplificado
+    unsigned char temp = block[1];
+    block[1] = block[5];
+    block[5] = block[9];
+    block[9] = block[13];
+    block[13] = temp;
 }
 
-unsigned char* aes_decrypt(const unsigned char* input, size_t input_size,
-                          const unsigned char* key, size_t* output_size) {
-    if (!input || !key || input_size == 0 || !output_size) {
-        return NULL;
+ssize_t aes_encrypt(const unsigned char* input, size_t input_size,
+                   unsigned char* output, const unsigned char* key, size_t key_len) {
+    if (input == NULL || output == NULL || key == NULL || key_len == 0) {
+        return -1;
     }
 
-    // Para XOR simple, decrypt es idéntico a encrypt
-    return aes_encrypt(input, input_size, key, output_size);
+    // Procesar en bloques de 16 bytes
+    size_t i;
+    for (i = 0; i + 16 <= input_size; i += 16) {
+        memcpy(output + i, input + i, 16);
+        
+        // 10 rondas simplificadas
+        for (int round = 0; round < 10; round++) {
+            simple_aes_round(output + i, key, key_len);
+        }
+    }
+
+    // Procesar bytes restantes
+    if (i < input_size) {
+        unsigned char block[16] = {0};
+        size_t remaining = input_size - i;
+        memcpy(block, input + i, remaining);
+        
+        for (int round = 0; round < 10; round++) {
+            simple_aes_round(block, key, key_len);
+        }
+        
+        memcpy(output + i, block, remaining);
+        i += remaining;
+    }
+
+    return i;
+}
+
+ssize_t aes_decrypt(const unsigned char* input, size_t input_size,
+                   unsigned char* output, const unsigned char* key, size_t key_len) {
+    if (input == NULL || output == NULL || key == NULL || key_len == 0) {
+        return -1;
+    }
+
+    // Implementación temporal - XOR simétrico
+    // TODO: Implementar desencriptación completa de AES
+    size_t i;
+    for (i = 0; i < input_size; i++) {
+        output[i] = input[i] ^ key[i % key_len];
+    }
+
+    return i;
 }

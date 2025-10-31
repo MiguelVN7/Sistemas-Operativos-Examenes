@@ -30,11 +30,13 @@ MAIN_SOURCES = $(SRC_DIR)/main.c \
                $(SRC_DIR)/file_manager.c \
                $(SRC_DIR)/concurrency.c
 
-COMPRESSION_SOURCES = $(COMPRESSION_DIR)/huffman.c \
+COMPRESSION_SOURCES = $(COMPRESSION_DIR)/compression.c \
+                      $(COMPRESSION_DIR)/huffman.c \
                       $(COMPRESSION_DIR)/rle.c \
                       $(COMPRESSION_DIR)/lzw.c
 
-ENCRYPTION_SOURCES = $(ENCRYPTION_DIR)/vigenere.c \
+ENCRYPTION_SOURCES = $(ENCRYPTION_DIR)/encryption.c \
+                     $(ENCRYPTION_DIR)/vigenere.c \
                      $(ENCRYPTION_DIR)/des.c \
                      $(ENCRYPTION_DIR)/aes_simple.c
 
@@ -71,17 +73,17 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 	@echo "Compiling $<..."
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Compilar módulos de compresión
+# Compilar mï¿½dulos de compresiï¿½n
 $(BUILD_DIR)/compression_%.o: $(COMPRESSION_DIR)/%.c | $(BUILD_DIR)
 	@echo "Compiling compression module: $<..."
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Compilar módulos de encriptación
+# Compilar mï¿½dulos de encriptaciï¿½n
 $(BUILD_DIR)/encryption_%.o: $(ENCRYPTION_DIR)/%.c | $(BUILD_DIR)
 	@echo "Compiling encryption module: $<..."
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Compilar módulos de utilidades
+# Compilar mï¿½dulos de utilidades
 $(BUILD_DIR)/utils_%.o: $(UTILS_DIR)/%.c | $(BUILD_DIR)
 	@echo "Compiling utils module: $<..."
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -100,7 +102,7 @@ $(BUILD_DIR)/test_%: $(BUILD_DIR)/test_%.o $(filter-out $(BUILD_DIR)/main.o,$(OB
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
 
-# Compilar con símbolos de debug
+# Compilar con sï¿½mbolos de debug
 debug:
 	$(MAKE) DEBUG=1 all
 
@@ -138,7 +140,7 @@ structure:
 	@echo "GSEA Project Structure:"
 	@tree -I 'build' . || find . -not -path '*/build/*' -not -path '*/.git/*' -type f
 
-# Información de ayuda
+# Informaciï¿½n de ayuda
 help:
 	@echo "GSEA - Generador de Sufijos Encriptados y Archivados"
 	@echo ""
@@ -162,7 +164,7 @@ help:
 	@echo "  make test         # Run tests"
 	@echo "  ./build/gsea      # Run the program"
 
-# Dependencias automáticas (para reconstruir cuando cambian headers)
+# Dependencias automï¿½ticas (para reconstruir cuando cambian headers)
 -include $(OBJECTS:.o=.d)
 
 $(BUILD_DIR)/%.d: $(SRC_DIR)/%.c

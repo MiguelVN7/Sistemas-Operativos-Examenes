@@ -3,47 +3,52 @@
 #include <string.h>
 
 /**
- * @file huffman.c
- * @brief Implementación del algoritmo de compresión Huffman
- *
- * Este es un esqueleto básico. La implementación completa requiere:
- * - Construcción del árbol de Huffman basado en frecuencias
- * - Generación de códigos óptimos
- * - Codificación y decodificación bit a bit
+ * Huffman Coding - Implementación simplificada
+ * Este es un stub básico para el avance
+ * TODO: Implementar árbol de Huffman completo
  */
 
-unsigned char* huffman_compress(const unsigned char* input, size_t input_size, size_t* output_size) {
-    if (!input || input_size == 0 || !output_size) {
-        return NULL;
+typedef struct {
+    unsigned char symbol;
+    unsigned int frequency;
+} HuffmanNode;
+
+ssize_t huffman_compress(const unsigned char* input, size_t input_size,
+                        unsigned char* output, size_t output_capacity) {
+    if (input == NULL || output == NULL || input_size == 0) {
+        return -1;
     }
 
-    // TODO: Implementar algoritmo Huffman completo
-    // Por ahora, placeholder que copia los datos
-    unsigned char* output = (unsigned char*)malloc(input_size);
-    if (!output) {
-        return NULL;
+    // Por ahora, implementación básica que solo copia
+    // TODO: Implementar algoritmo completo de Huffman
+    if (input_size > output_capacity) {
+        return -1;
     }
 
+    // Frecuencias
+    unsigned int freq[256] = {0};
+    for (size_t i = 0; i < input_size; i++) {
+        freq[input[i]]++;
+    }
+
+    // Por ahora solo copiar datos (implementación temporal)
     memcpy(output, input, input_size);
-    *output_size = input_size;
-
-    return output;
+    
+    return input_size;
 }
 
-unsigned char* huffman_decompress(const unsigned char* input, size_t input_size, size_t* output_size) {
-    if (!input || input_size == 0 || !output_size) {
-        return NULL;
+ssize_t huffman_decompress(const unsigned char* input, size_t input_size,
+                          unsigned char* output, size_t output_capacity) {
+    if (input == NULL || output == NULL || input_size == 0) {
+        return -1;
     }
 
-    // TODO: Implementar descompresión Huffman completa
-    // Por ahora, placeholder que copia los datos
-    unsigned char* output = (unsigned char*)malloc(input_size);
-    if (!output) {
-        return NULL;
+    // Implementación temporal - solo copia
+    if (input_size > output_capacity) {
+        return -1;
     }
 
     memcpy(output, input, input_size);
-    *output_size = input_size;
-
-    return output;
+    
+    return input_size;
 }
