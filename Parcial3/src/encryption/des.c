@@ -1,50 +1,90 @@
 #include "des.h"
-#include <stdlib.h>
 #include <string.h>
 
 /**
- * @file des.c
- * @brief Implementación simplificada del algoritmo DES
- *
- * NOTA: Esta es una implementación educativa simplificada.
- * Para producción, use librerías criptográficas establecidas como OpenSSL.
- *
- * DES usa bloques de 64 bits y una clave de 56 bits (64 bits con paridad).
- * Este es un placeholder que implementa XOR básico.
+ * DES (Data Encryption Standard) - Implementación simplificada
+ * Esta es una versión básica para el avance
+ * TODO: Implementar DES completo con sus rondas y permutaciones
  */
 
-unsigned char* des_encrypt(const unsigned char* input, size_t input_size,
-                          const unsigned char* key, size_t* output_size) {
-    if (!input || !key || input_size == 0 || !output_size) {
-        return NULL;
+static void simple_des_round(unsigned char* block, const unsigned char* key, size_t key_len) {
+    for (size_t i = 0; i < 8; i++) {
+        block[i] ^= key[i % key_len];
+        block[i] = ((block[i] << 1) | (block[i] >> 7));  // Rotación
     }
-
-    // TODO: Implementar DES completo con:
-    // - Permutación inicial (IP)
-    // - 16 rondas Feistel
-    // - Generación de subclaves
-    // - Permutación final (FP)
-
-    // Placeholder: Simple XOR con clave
-    unsigned char* output = (unsigned char*)malloc(input_size);
-    if (!output) {
-        return NULL;
-    }
-
-    for (size_t i = 0; i < input_size; i++) {
-        output[i] = input[i] ^ key[i % 8];
-    }
-
-    *output_size = input_size;
-    return output;
 }
 
-unsigned char* des_decrypt(const unsigned char* input, size_t input_size,
-                          const unsigned char* key, size_t* output_size) {
-    if (!input || !key || input_size == 0 || !output_size) {
-        return NULL;
+ssize_t des_encrypt(const unsigned char* input, size_t input_size,
+                   unsigned char* output, const unsigned char* key, size_t key_len) {
+    if (input == NULL || output == NULL || key == NULL || key_len == 0) {
+        return -1;
     }
 
-    // Para XOR simple, decrypt es idéntico a encrypt
-    return des_encrypt(input, input_size, key, output_size);
+    // Procesar en bloques de 8 bytes
+    size_t i;
+    for (i = 0; i + 8 <= input_size; i += 8) {
+        memcpy(output + i, input + i, 8);
+        
+        // 4 rondas simplificadas
+        for (int round = 0; round < 4; round++) {
+            simple_des_round(output + i, key, key_len);
+        }
+    }
+
+    // Procesar bytes restantes
+    if (i < input_size) {
+        unsigned char block[8] = {0};
+        size_t remaining = input_size - i;
+        memcpy(block, input + i, remaining);
+        
+        for (int round = 0; round < 4; round++) {
+            simple_des_round(block, key, key_len);
+        }
+        
+        memcpy(output + i, block, remaining);
+        i += remaining;
+    }
+
+    return i;
+}
+
+ssize_t des_decrypt(const unsigned char* input, size_t input_size,
+                   unsigned char* output, const unsigned char* key, size_t key_len) {
+    if (input == NULL || output == NULL || key == NULL || key_len == 0) {
+        return -1;
+    }
+
+    // Para desencriptar, aplicamos las operaciones inversas
+    size_t i;
+    for (i = 0; i + 8 <= input_size; i += 8) {
+        memcpy(output + i, input + i, 8);
+        
+        // Rondas en orden inverso
+        for (int round = 0; round < 4; round++) {
+            // Rotación inversa
+            for (size_t j = 0; j < 8; j++) {
+                output[i + j] = ((output[i + j] >> 1) | (output[i + j] << 7));
+                output[i + j] ^= key[j % key_len];
+            }
+        }
+    }
+
+    // Procesar bytes restantes
+    if (i < input_size) {
+        unsigned char block[8] = {0};
+        size_t remaining = input_size - i;
+        memcpy(block, input + i, remaining);
+        
+        for (int round = 0; round < 4; round++) {
+            for (size_t j = 0; j < 8; j++) {
+                block[j] = ((block[j] >> 1) | (block[j] << 7));
+                block[j] ^= key[j % key_len];
+            }
+        }
+        
+        memcpy(output + i, block, remaining);
+        i += remaining;
+    }
+
+    return i;
 }

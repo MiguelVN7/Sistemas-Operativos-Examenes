@@ -36,6 +36,8 @@ const char* error_to_string(ErrorCode code) {
             return "Thread creation failed";
         case ERROR_MUTEX_INIT:
             return "Mutex initialization failed";
+        case ERROR_DIRECTORY_ACCESS:
+            return "Directory access failed";
         case ERROR_UNKNOWN:
         default:
             return "Unknown error";

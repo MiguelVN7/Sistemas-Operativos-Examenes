@@ -3,47 +3,42 @@
 #include <string.h>
 
 /**
- * @file lzw.c
- * @brief Implementación del algoritmo Lempel-Ziv-Welch
- *
- * Este es un esqueleto básico. La implementación completa requiere:
- * - Diccionario dinámico de secuencias
- * - Codificación de índices de diccionario
- * - Manejo de diccionario lleno
+ * LZW (Lempel-Ziv-Welch) - Implementación simplificada
+ * Este es un stub básico para el avance
+ * TODO: Implementar diccionario completo de LZW
  */
 
-unsigned char* lzw_compress(const unsigned char* input, size_t input_size, size_t* output_size) {
-    if (!input || input_size == 0 || !output_size) {
-        return NULL;
+#define MAX_DICT_SIZE 4096
+
+ssize_t lzw_compress(const unsigned char* input, size_t input_size,
+                    unsigned char* output, size_t output_capacity) {
+    if (input == NULL || output == NULL || input_size == 0) {
+        return -1;
     }
 
-    // TODO: Implementar algoritmo LZW completo
-    // Por ahora, placeholder que copia los datos
-    unsigned char* output = (unsigned char*)malloc(input_size);
-    if (!output) {
-        return NULL;
+    // Implementación temporal - solo copia
+    // TODO: Implementar algoritmo completo de LZW con diccionario
+    if (input_size > output_capacity) {
+        return -1;
     }
 
     memcpy(output, input, input_size);
-    *output_size = input_size;
-
-    return output;
+    
+    return input_size;
 }
 
-unsigned char* lzw_decompress(const unsigned char* input, size_t input_size, size_t* output_size) {
-    if (!input || input_size == 0 || !output_size) {
-        return NULL;
+ssize_t lzw_decompress(const unsigned char* input, size_t input_size,
+                      unsigned char* output, size_t output_capacity) {
+    if (input == NULL || output == NULL || input_size == 0) {
+        return -1;
     }
 
-    // TODO: Implementar descompresión LZW completa
-    // Por ahora, placeholder que copia los datos
-    unsigned char* output = (unsigned char*)malloc(input_size);
-    if (!output) {
-        return NULL;
+    // Implementación temporal - solo copia
+    if (input_size > output_capacity) {
+        return -1;
     }
 
     memcpy(output, input, input_size);
-    *output_size = input_size;
-
-    return output;
+    
+    return input_size;
 }

@@ -1,57 +1,44 @@
 #ifndef COMPRESSION_H
 #define COMPRESSION_H
 
+#include "../file_manager.h"
+#include "../args_parser.h"
 #include <stddef.h>
+#include <sys/types.h>
 
 /**
  * @file compression.h
- * @brief Interfaz común para algoritmos de compresión
+ * @brief Interfaz unificada para algoritmos de compresión
  */
-
-/**
- * @brief Tipo de algoritmo de compresión
- */
-typedef enum {
-    COMPRESSION_HUFFMAN,
-    COMPRESSION_RLE,
-    COMPRESSION_LZW
-} CompressionType;
-
-/**
- * @brief Resultado de operación de compresión
- */
-typedef struct {
-    unsigned char* data;      // Datos comprimidos
-    size_t size;             // Tamaño de datos comprimidos
-    int success;             // 1 si exitoso, 0 si falló
-    char error_msg[256];     // Mensaje de error si falló
-} CompressionResult;
 
 /**
  * @brief Comprime datos usando el algoritmo especificado
- *
- * @param input Datos de entrada
- * @param input_size Tamaño de datos de entrada
- * @param type Tipo de compresión a usar
- * @return CompressionResult con datos comprimidos o error
  */
-CompressionResult compress_data(const unsigned char* input, size_t input_size, CompressionType type);
+ssize_t compress_data(const unsigned char* input, size_t input_size,
+                     FileBuffer* output, CompressionAlgorithm algorithm);
 
 /**
  * @brief Descomprime datos usando el algoritmo especificado
- *
- * @param input Datos comprimidos
- * @param input_size Tamaño de datos comprimidos
- * @param type Tipo de compresión usado
- * @return CompressionResult con datos descomprimidos o error
  */
-CompressionResult decompress_data(const unsigned char* input, size_t input_size, CompressionType type);
+ssize_t decompress_data(const unsigned char* input, size_t input_size,
+                       FileBuffer* output, CompressionAlgorithm algorithm);
 
-/**
- * @brief Libera memoria de un CompressionResult
- *
- * @param result Resultado a liberar
- */
-void free_compression_result(CompressionResult* result);
+// RLE (Run-Length Encoding)
+ssize_t rle_compress(const unsigned char* input, size_t input_size,
+                    unsigned char* output, size_t output_capacity);
+ssize_t rle_decompress(const unsigned char* input, size_t input_size,
+                      unsigned char* output, size_t output_capacity);
+
+// Huffman Coding
+ssize_t huffman_compress(const unsigned char* input, size_t input_size,
+                        unsigned char* output, size_t output_capacity);
+ssize_t huffman_decompress(const unsigned char* input, size_t input_size,
+                          unsigned char* output, size_t output_capacity);
+
+// LZW (Lempel-Ziv-Welch)
+ssize_t lzw_compress(const unsigned char* input, size_t input_size,
+                    unsigned char* output, size_t output_capacity);
+ssize_t lzw_decompress(const unsigned char* input, size_t input_size,
+                      unsigned char* output, size_t output_capacity);
 
 #endif // COMPRESSION_H
