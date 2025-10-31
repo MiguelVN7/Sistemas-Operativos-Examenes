@@ -5,10 +5,10 @@
 
 /**
  * @file memory_manager.c
- * @brief Implementación del sistema de gestión de memoria
+ * @brief Sistema de gestión de memoria con tracking
  *
- * Mantiene un registro de todas las asignaciones de memoria
- * para detectar fugas y facilitar debugging.
+ * TODO: Implementar sistema completo de tracking
+ * TODO: Agregar estadísticas y reporting
  */
 
 #define MAX_ALLOCATIONS 10000
@@ -25,6 +25,10 @@ static AllocationRecord allocations[MAX_ALLOCATIONS];
 static size_t total_allocated = 0;
 static size_t allocation_count = 0;
 
+/**
+ * @brief Asigna memoria con tracking
+ * TODO: Implementar registro de asignaciones
+ */
 void* tracked_malloc(size_t size, const char* file, int line) {
     void* ptr = malloc(size);
 
@@ -34,61 +38,30 @@ void* tracked_malloc(size_t size, const char* file, int line) {
         return NULL;
     }
 
-    // Registrar asignación
-    for (size_t i = 0; i < MAX_ALLOCATIONS; i++) {
-        if (!allocations[i].active) {
-            allocations[i].ptr = ptr;
-            allocations[i].size = size;
-            allocations[i].file = file;
-            allocations[i].line = line;
-            allocations[i].active = 1;
-
-            total_allocated += size;
-            allocation_count++;
-            break;
-        }
-    }
-
+    // TODO: Registrar asignación en tabla
+    
     return ptr;
 }
 
+/**
+ * @brief Libera memoria con tracking
+ * TODO: Implementar verificación de punteros
+ */
 void tracked_free(void* ptr, const char* file, int line) {
     if (!ptr) {
         return;
     }
 
-    // Buscar y marcar como liberado
-    int found = 0;
-    for (size_t i = 0; i < MAX_ALLOCATIONS; i++) {
-        if (allocations[i].active && allocations[i].ptr == ptr) {
-            total_allocated -= allocations[i].size;
-            allocations[i].active = 0;
-            found = 1;
-            break;
-        }
-    }
-
-    if (!found) {
-        fprintf(stderr, "Warning: Attempted to free untracked pointer at %s:%d\n",
-                file, line);
-    }
-
+    // TODO: Buscar y marcar como liberado
+    
     free(ptr);
 }
 
+/**
+ * @brief Reasigna memoria con tracking
+ * TODO: Implementar actualización de registros
+ */
 void* tracked_realloc(void* ptr, size_t new_size, const char* file, int line) {
-    // Buscar registro existente
-    size_t old_size = 0;
-    int idx = -1;
-
-    for (size_t i = 0; i < MAX_ALLOCATIONS; i++) {
-        if (allocations[i].active && allocations[i].ptr == ptr) {
-            old_size = allocations[i].size;
-            idx = i;
-            break;
-        }
-    }
-
     void* new_ptr = realloc(ptr, new_size);
 
     if (!new_ptr) {
@@ -97,59 +70,32 @@ void* tracked_realloc(void* ptr, size_t new_size, const char* file, int line) {
         return NULL;
     }
 
-    // Actualizar registro
-    if (idx >= 0) {
-        total_allocated = total_allocated - old_size + new_size;
-        allocations[idx].ptr = new_ptr;
-        allocations[idx].size = new_size;
-        allocations[idx].file = file;
-        allocations[idx].line = line;
-    } else {
-        // Nuevo registro
-        tracked_malloc(new_size, file, line);
-    }
+    // TODO: Actualizar registro
 
     return new_ptr;
 }
 
+/**
+ * @brief Imprime reporte de memory leaks
+ * TODO: Implementar detección y reporte
+ */
 void print_memory_leaks(void) {
-    int leak_count = 0;
-    size_t leaked_bytes = 0;
-
     printf("\n=== Memory Leak Report ===\n");
-
-    for (size_t i = 0; i < MAX_ALLOCATIONS; i++) {
-        if (allocations[i].active) {
-            printf("LEAK: %zu bytes at %p (allocated at %s:%d)\n",
-                   allocations[i].size,
-                   allocations[i].ptr,
-                   allocations[i].file,
-                   allocations[i].line);
-            leak_count++;
-            leaked_bytes += allocations[i].size;
-        }
-    }
-
-    if (leak_count == 0) {
-        printf("No memory leaks detected!\n");
-    } else {
-        printf("\nTotal: %d leaks, %zu bytes\n", leak_count, leaked_bytes);
-    }
-
-    printf("Total allocations made: %zu\n", allocation_count);
+    printf("TODO: Implement leak detection\n");
     printf("==========================\n\n");
 }
 
+/**
+ * @brief Obtiene memoria total asignada
+ */
 size_t get_allocated_memory(void) {
     return total_allocated;
 }
 
+/**
+ * @brief Limpia toda la memoria tracked
+ */
 void cleanup_all_memory(void) {
-    for (size_t i = 0; i < MAX_ALLOCATIONS; i++) {
-        if (allocations[i].active) {
-            free(allocations[i].ptr);
-            allocations[i].active = 0;
-        }
-    }
+    // TODO: Liberar toda la memoria registrada
     total_allocated = 0;
 }
