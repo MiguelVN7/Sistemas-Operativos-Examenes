@@ -19,6 +19,13 @@ ssize_t des_encrypt(const unsigned char* input, size_t input_size,
         return -1;
     }
 
+    // Suppress unused parameter warnings
+    (void)input;
+    (void)input_size;
+    (void)output;
+    (void)key;
+    (void)key_len;
+
     // TODO: Implementar DES encryption
     // - Procesar en bloques de 8 bytes
     // - Aplicar 16 rondas de Feistel
@@ -32,6 +39,13 @@ ssize_t des_decrypt(const unsigned char* input, size_t input_size,
     if (input == NULL || output == NULL || key == NULL || key_len == 0) {
         return -1;
     }
+
+    // Suppress unused parameter warnings
+    (void)input;
+    (void)input_size;
+    (void)output;
+    (void)key;
+    (void)key_len;
 
     // TODO: Implementar DES decryption
     // - Mismo proceso que encrypt pero con subclaves en orden inverso

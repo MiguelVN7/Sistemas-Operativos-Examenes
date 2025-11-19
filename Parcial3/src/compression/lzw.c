@@ -4,7 +4,6 @@
 
 /**
  * LZW (Lempel-Ziv-Welch) - Implementación simplificada
- * Este es un stub básico para el avance
  * TODO: Implementar diccionario completo de LZW
  */
 
@@ -15,6 +14,12 @@ ssize_t lzw_compress(const unsigned char* input, size_t input_size,
     if (input == NULL || output == NULL || input_size == 0) {
         return -1;
     }
+
+    // Suppress unused parameter warnings
+    (void)input;
+    (void)input_size;
+    (void)output;
+    (void)output_capacity;
 
     // Implementación temporal - solo copia
     // TODO: Implementar algoritmo completo de LZW con diccionario
@@ -32,6 +37,12 @@ ssize_t lzw_decompress(const unsigned char* input, size_t input_size,
     if (input == NULL || output == NULL || input_size == 0) {
         return -1;
     }
+    
+    // Suppress unused parameter warnings
+    (void)input;
+    (void)input_size;
+    (void)output;
+    (void)output_capacity;
 
     // Implementación temporal - solo copia
     if (input_size > output_capacity) {

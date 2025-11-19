@@ -4,7 +4,6 @@
 
 /**
  * Huffman Coding - Implementación simplificada
- * Este es un stub básico para el avance
  * TODO: Implementar árbol de Huffman completo
  */
 
@@ -30,6 +29,9 @@ ssize_t huffman_compress(const unsigned char* input, size_t input_size,
     for (size_t i = 0; i < input_size; i++) {
         freq[input[i]]++;
     }
+    
+    // Suppress unused parameter warning
+    (void)freq;
 
     // Por ahora solo copiar datos (implementación temporal)
     memcpy(output, input, input_size);
