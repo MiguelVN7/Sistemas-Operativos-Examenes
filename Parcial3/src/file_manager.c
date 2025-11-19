@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#define MAX_FILE_SIZE (200 * 1024 * 1024) // 200 MB limit
+
 /**
  * @brief Lee un archivo completo usando syscalls
  */
@@ -28,6 +30,13 @@ ssize_t read_file(const char* path, FileBuffer* buffer) {
     struct stat st;
     if (fstat(fd, &st) < 0) {
         LOG_ERROR(ERROR_FILE_READ, SEVERITY_ERROR, "Failed to get file stats");
+        close(fd);
+        return -1;
+    }
+
+    // Verificar tamaño máximo para evitar problemas de memoria
+    if (st.st_size > MAX_FILE_SIZE) {
+        LOG_ERROR(ERROR_FILE_READ, SEVERITY_ERROR, "File too large (max 200MB)");
         close(fd);
         return -1;
     }

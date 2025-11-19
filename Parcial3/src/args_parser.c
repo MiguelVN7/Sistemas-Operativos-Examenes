@@ -16,8 +16,8 @@ void print_usage(const char* program_name) {
     printf("  -u              Desencriptar\n");
     printf("  (Se pueden combinar: -ce para comprimir y encriptar)\n\n");
     printf("Algoritmos:\n");
-    printf("  --comp-alg ALG  Algoritmo de compresión (rle, huffman, lzw)\n");
-    printf("  --enc-alg ALG   Algoritmo de encriptación (vigenere, des, aes)\n\n");
+    printf("  --comp-alg ALG  Algoritmo de compresión (rle)\n");
+    printf("  --enc-alg ALG   Algoritmo de encriptación (vigenere)\n\n");
     printf("Archivos:\n");
     printf("  -i PATH         Archivo o directorio de entrada\n");
     printf("  -o PATH         Archivo o directorio de salida\n");
@@ -26,21 +26,17 @@ void print_usage(const char* program_name) {
     printf("  -v              Modo verbose\n");
     printf("  -h, --help      Mostrar esta ayuda\n\n");
     printf("Ejemplos:\n");
-    printf("  %s -c --comp-alg lzw -i input.txt -o output.lzw\n", program_name);
-    printf("  %s -ce --comp-alg huffman --enc-alg des -i dir/ -o output.enc -k mykey\n", program_name);
+    printf("  %s -c --comp-alg rle -i input.txt -o output.rle\n", program_name);
+    printf("  %s -ce --comp-alg rle --enc-alg vigenere -i dir/ -o output.enc -k mykey\n", program_name);
 }
 
 CompressionAlgorithm string_to_compression_alg(const char* str) {
     if (strcmp(str, "rle") == 0) return COMP_RLE;
-    if (strcmp(str, "huffman") == 0) return COMP_HUFFMAN;
-    if (strcmp(str, "lzw") == 0) return COMP_LZW;
     return COMP_NONE;
 }
 
 EncryptionAlgorithm string_to_encryption_alg(const char* str) {
     if (strcmp(str, "vigenere") == 0) return ENC_VIGENERE;
-    if (strcmp(str, "des") == 0) return ENC_DES;
-    if (strcmp(str, "aes") == 0) return ENC_AES;
     return ENC_NONE;
 }
 
